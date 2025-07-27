@@ -1,21 +1,47 @@
 const VisaRule = require('./VisaRules');
+const CountryInfo = require('./CountryInfo');
 
 async function getVisaRules(filters) {
-  const query = {};
+  const { visaType, country } = filters;
+  const response = {};
 
-  if (filters.visaType) {
-    query.visaType = filters.visaType;
+  if (visaType) {
+    const visaRule = await VisaRule.findOne({ visaType }).lean();
+    response.visaRules = visaRule;
   }
 
-  const results = await VisaRule.find(query).lean();
-  return results;
-}
+  if (country) {
+    const countryInfo = await CountryInfo.findOne({}).lean();
+    const lowerCountry = country.toLowerCase();
 
-async function testDB() {
-  const all = await VisaRule.find({}).lean();
-  console.log('All visa rules in DB:', all);
-}
-testDB();
+    const isVisaFree = countryInfo.visaFreeCountries.map(c => c.toLowerCase()).includes(lowerCountry);
+    const isVisaRequired = countryInfo.visaRequiredCountries.map(c => c.toLowerCase()).includes(lowerCountry);
+    const needsTBTest = countryInfo.tbTestCountries.map(c => c.toLowerCase()).includes(lowerCountry);
 
+    const visaRequirement = isVisaFree
+      ? 'visa-free'
+      : isVisaRequired
+        ? 'visa-required'
+        : 'unknown';
+
+    response.countrySummary = {
+      country,
+      visaRequirement,
+      needsTBTest,
+      tbTestExplanation: countryInfo.tbTestExplanation
+    };
+  }
+
+  if (!visaType && !country) {
+    const allVisaRules = await VisaRule.find({}).lean();
+    const fullCountryInfo = await CountryInfo.findOne({}).lean();
+    return {
+      visaRules: allVisaRules,
+      countryInfo: fullCountryInfo
+    };
+  }
+
+  return response;
+}
 
 module.exports = { getVisaRules };
