@@ -6,8 +6,13 @@ async function getVisaRules(filters) {
   const response = {};
 
   if (visaType) {
-    const visaRule = await VisaRule.findOne({ visaType }).lean();
-    response.visaRules = visaRule;
+    const visaRule = await VisaRule.findOne({visaType}).lean();
+    if (!visaRule) {
+      response.visaRules = null;
+      response.message = `No visa rule found for visaType: ${visaType}`;
+    } else {
+      response.visaRules = visaRule;
+    }
   }
 
   if (country) {
@@ -39,6 +44,11 @@ async function getVisaRules(filters) {
       visaRules: allVisaRules,
       countryInfo: fullCountryInfo
     };
+  }
+
+  if (country && country.toUpperCase() === 'ALL') {
+    const fullCountryInfo = await CountryInfo.findOne({}).lean();
+    return { countryInfo: fullCountryInfo };
   }
 
   return response;
