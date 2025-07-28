@@ -10,6 +10,7 @@ app.use(express.json());
 connectDB();
 
 app.use('/check', require('./routes/check'));
+app.use('/session', require('./routes/session'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
