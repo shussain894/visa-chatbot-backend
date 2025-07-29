@@ -14,7 +14,6 @@ router.post('/', async (req, res) => {
     let matchedVisaType = null;
     let matchedCountry = null;
     let needsTBTest = false;
-    let responseParts = [];
 
     const lowerMessage = userMessage.toLowerCase();
     const visaTypeKeywords = {
@@ -34,14 +33,6 @@ router.post('/', async (req, res) => {
 
       if (matched) {
         matchedVisaType = visa;
-        responseParts.push(`Visa Type: **${visa.visaType.replace(/_/g, ' ')}**`);
-        if (visa.eligibility) {
-          responseParts.push(
-            `Eligibility: ${Object.entries(visa.eligibility)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')}`
-          );
-        }
         break;
       }
     }
@@ -71,20 +62,8 @@ router.post('/', async (req, res) => {
       matchedCountry = bestMatch;
 
       if (matchedCountry) {
-        const visaReq = visaRequiredCountries.includes(matchedCountry)
-          ? 'visa-required'
-          : 'visa-free';
         needsTBTest = tbTestCountries.includes(matchedCountry);
-
-        responseParts.push(`Country: **${matchedCountry}**`);
-        responseParts.push(`Visa requirement: ${visaReq}`);
-        responseParts.push(`TB test required: ${needsTBTest ? 'Yes' : 'No'}`);
-
-        if (needsTBTest) {
-          responseParts.push(`Reason: ${tbTestExplanation}`);
-        }
       }
-
     }
 
     if (!matchedVisaType && !matchedCountry) {
@@ -94,18 +73,46 @@ router.post('/', async (req, res) => {
       });
     }
 
+    let messageParts = [];
+
+    if (matchedVisaType) {
+      messageParts.push(`You're applying for a **${matchedVisaType.visaType.replace(/_/g, ' ')}**.`);
+      if (matchedVisaType.eligibility) {
+        const eligibilityDetails = Object.entries(matchedVisaType.eligibility)
+          .map(([k, v]) => `${k}: ${v}`)
+          .join(', ');
+        messageParts.push(`Eligibility details include: ${eligibilityDetails}.`);
+      }
+    }
+
+    if (matchedCountry && countryInfo) {
+      const isVisaRequired = countryInfo.visaRequiredCountries.includes(matchedCountry);
+      const visaStatus = isVisaRequired ? 'visa-required' : 'visa-free';
+
+      messageParts.push(`${matchedCountry} is a **${visaStatus}** country.`);
+
+      if (needsTBTest) {
+        messageParts.push(`You **need a TB test**. Reason: ${countryInfo.tbTestExplanation}`);
+      } else {
+        messageParts.push(`You **do not need a TB test**.`);
+      }
+    }
+
+    const finalMessage = messageParts.join(' ');
+
     await Session.create({
       userMessage,
       matchedVisaType: matchedVisaType?.visaType || null,
       matchedCountry,
       usedLLMFallback: false,
-      llmResponse: responseParts.join('\n'),
+      llmResponse: finalMessage,
       finalDecision: null
     });
 
     res.json({
-      message: responseParts.join('\n')
+      message: finalMessage
     });
+
   } catch (error) {
     console.error('Error in POST /check:', error);
     res.status(500).json({ message: 'Internal server error' });

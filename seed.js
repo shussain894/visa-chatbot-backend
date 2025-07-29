@@ -137,7 +137,7 @@ const data = {
   },
 
     visa_free_countries: [
-      "Andorra", "Antigua and Barbuda", "Australia", "Bahamas", "Barbados",
+      "Andorra", "Antigua Barbuda", "Australia", "Bahamas", "Barbados",
       "Belgium", "Canada", "Chile", "Croatia", "Cyprus", "Czech Republic",
       "Denmark", "Estonia", "Finland", "France", "Germany", "Greece",
       "Hungary", "Iceland", "Ireland", "Italy", "Japan", "Latvia",
