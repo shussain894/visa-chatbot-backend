@@ -17,21 +17,29 @@ router.post('/', async (req, res) => {
     let responseParts = [];
 
     const visaTypes = await VisaRule.find({}).lean();
+    const lowerMessage = userMessage.toLowerCase();
+
     for (const visa of visaTypes) {
-      const pattern = new RegExp(visa.visaType.replace(/_/g, ' '), 'i');
-      if (pattern.test(userMessage)) {
+      const visaWords = visa.visaType.replace(/_/g, ' ').split(/\s+/);
+
+      const matched = visaWords.some(word =>
+        lowerMessage.includes(word.toLowerCase())
+      );
+
+      if (matched) {
         matchedVisaType = visa;
         responseParts.push(`Visa Type: **${visa.visaType.replace(/_/g, ' ')}**`);
+
         if (visa.eligibility) {
-          responseParts.push(
-            `Eligibility: ${Object.entries(visa.eligibility)
-              .map(([k, v]) => `${k}: ${v}`)
-              .join(', ')}`
-          );
+          const eligibilityString = Object.entries(visa.eligibility)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(', ');
+          responseParts.push(`Eligibility: ${eligibilityString}`);
         }
         break;
       }
     }
+
 
     const countryInfo = await CountryInfo.findOne({});
     if (countryInfo) {
@@ -43,9 +51,19 @@ router.post('/', async (req, res) => {
       } = countryInfo;
 
       const allCountries = [...visaFreeCountries, ...visaRequiredCountries];
-      matchedCountry = allCountries.find(country =>
-        userMessage.toLowerCase().includes(country.toLowerCase())
-      );
+
+      let bestMatch = null;
+
+      for (const country of allCountries) {
+        const countryWords = country.toLowerCase().split(/\s+/);
+        const matched = countryWords.some(word => lowerMessage.includes(word));
+        if (matched) {
+          bestMatch = country;
+          break;
+        }
+      }
+
+      matchedCountry = bestMatch;
 
       if (matchedCountry) {
         const visaReq = visaRequiredCountries.includes(matchedCountry)
@@ -56,10 +74,12 @@ router.post('/', async (req, res) => {
         responseParts.push(`Country: **${matchedCountry}**`);
         responseParts.push(`Visa requirement: ${visaReq}`);
         responseParts.push(`TB test required: ${needsTBTest ? 'Yes' : 'No'}`);
+
         if (needsTBTest) {
           responseParts.push(`Reason: ${tbTestExplanation}`);
         }
       }
+
     }
 
     if (!matchedVisaType && !matchedCountry) {

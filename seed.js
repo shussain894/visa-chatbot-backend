@@ -144,7 +144,7 @@ const data = {
       "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Monaco",
       "Netherlands", "New Zealand", "Norway", "Poland", "Portugal",
       "San Marino", "Singapore", "Slovakia", "Slovenia", "South Korea",
-      "Spain", "Sweden", "Switzerland", "United States"
+      "Spain", "Sweden", "Switzerland", "United States of America"
     ],
 
     visa_required_countries: [
@@ -156,7 +156,7 @@ const data = {
       "India", "Iran", "Iraq", "Ivory Coast", "Jamaica", "Jordan", "Kenya",
       "Kosovo", "Lebanon", "Lesotho", "Liberia", "Libya", "Malawi",
       "Moldova", "Mongolia", "Myanmar (Burma)", "Namibia", "Nepal",
-      "Nigeria", "North Macedonia", "Pakistan", "Palestinian Territories",
+      "Nigeria", "North Macedonia", "Pakistan", "Palestine",
       "Russia", "Rwanda", "Senegal", "Serbia", "Sierra Leone", "Somalia",
       "South Africa", "South Sudan", "Sri Lanka", "Sudan", "Syria",
       "Tanzania", "Timor-Leste", "Trinidad and Tobago", "Turkey",
