@@ -16,30 +16,35 @@ router.post('/', async (req, res) => {
     let needsTBTest = false;
     let responseParts = [];
 
-    const visaTypes = await VisaRule.find({}).lean();
     const lowerMessage = userMessage.toLowerCase();
+    const visaTypeKeywords = {
+      'standard_visitor_visa': ['tourist', 'tourism', 'visit'],
+      'skilled_worker_visa': ['skilled', 'work', 'worker'],
+    };
 
+    const visaTypes = await VisaRule.find({}).lean();
     for (const visa of visaTypes) {
       const visaWords = visa.visaType.replace(/_/g, ' ').split(/\s+/);
+      const synonyms = visaTypeKeywords[visa.visaType] || [];
+      const allKeywords = [...visaWords, ...synonyms].map(w => w.toLowerCase());
 
-      const matched = visaWords.some(word =>
-        lowerMessage.includes(word.toLowerCase())
+      const matched = allKeywords.some(keyword =>
+        lowerMessage.includes(keyword)
       );
 
       if (matched) {
         matchedVisaType = visa;
         responseParts.push(`Visa Type: **${visa.visaType.replace(/_/g, ' ')}**`);
-
         if (visa.eligibility) {
-          const eligibilityString = Object.entries(visa.eligibility)
-            .map(([k, v]) => `${k}: ${v}`)
-            .join(', ');
-          responseParts.push(`Eligibility: ${eligibilityString}`);
+          responseParts.push(
+            `Eligibility: ${Object.entries(visa.eligibility)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join(', ')}`
+          );
         }
         break;
       }
     }
-
 
     const countryInfo = await CountryInfo.findOne({});
     if (countryInfo) {
