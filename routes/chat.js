@@ -3,6 +3,7 @@ const router = express.Router();
 const VisaRule = require('../models/VisaRules');
 const CountryInfo = require('../models/CountryInfo');
 const Session = require('../models/Session');
+const askLlama = require('../helpers/askLlama3');
 
 router.post('/', async (req, res) => {
   try {
@@ -24,7 +25,7 @@ router.post('/', async (req, res) => {
 
     const visaTypes = await VisaRule.find({}).lean();
     for (const visa of visaTypes) {
-      const visaWords = visa.visaType.replace(/_/g, ' ').split(/\s+/);
+      const visaWords = visa.visaType.replace(/_/g, ' ').split(/\s+/).filter(word => word !== 'visa');
       const synonyms = visaTypeKeywords[visa.visaType] || [];
       const allKeywords = [...visaWords, ...synonyms].map(w => w.toLowerCase());
 

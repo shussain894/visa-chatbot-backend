@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { getVisaRules } = require('../models/visaService');
 const VisaRule = require('../models/VisaRules');
-const askLlama = require('../helpers/askLlama3');
 
 router.get('/', async (req, res) => {
   try {
