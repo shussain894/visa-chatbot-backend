@@ -4,6 +4,7 @@ const VisaRule = require('../models/VisaRules');
 const CountryInfo = require('../models/CountryInfo');
 const Session = require('../models/Session');
 const askLlama = require('../helpers/askLlama3');
+const getNextBestQuestion = require('../helpers/nextQuestion');
 
 router.post('/', async (req, res) => {
   try {
@@ -122,14 +123,23 @@ router.post('/', async (req, res) => {
       finalDecision: null
     });
 
+    const nextQuestion = await getNextBestQuestion(
+      userMessage,
+      matchedVisaType?.visaType || null,
+      matchedCountry
+    );
+
     res.json({
-      message: finalMessage
+      message: finalMessage,
+      nextQuestion: nextQuestion?.trim() || 'Is there anything else I can help you with?'
     });
 
   } catch (error) {
     console.error('Error in POST /check:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
+
+
 });
 
 module.exports = router;
