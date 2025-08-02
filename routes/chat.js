@@ -5,6 +5,7 @@ const CountryInfo = require('../models/CountryInfo');
 const Session = require('../models/Session');
 const askLlama = require('../helpers/askLlama3');
 const getNextBestQuestion = require('../helpers/nextQuestion');
+const getFinalDecision = require('../helpers/finalDecision');
 
 router.post('/', async (req, res) => {
   try {
@@ -16,6 +17,7 @@ router.post('/', async (req, res) => {
     let matchedVisaType = null;
     let matchedCountry = null;
     let needsTBTest = false;
+    let finalDecision = null;
 
     const lowerMessage = userMessage.toLowerCase();
     const visaTypeKeywords = {
@@ -30,9 +32,7 @@ router.post('/', async (req, res) => {
       const synonyms = visaTypeKeywords[visa.visaType] || [];
       const allKeywords = [...visaWords, ...synonyms].map(w => w.toLowerCase());
 
-      const matched = allKeywords.some(keyword =>
-        lowerMessage.includes(keyword)
-      );
+      const matched = allKeywords.some(keyword => lowerMessage.includes(keyword));
 
       if (matched) {
         matchedVisaType = visa;
@@ -66,7 +66,21 @@ router.post('/', async (req, res) => {
 
       if (matchedCountry) {
         needsTBTest = tbTestCountries.includes(matchedCountry);
+
+        if (visaFreeCountries.includes(matchedCountry)) {
+          finalDecision = 'Visa not required';
+        } else if (visaRequiredCountries.includes(matchedCountry)) {
+          finalDecision = 'Visa required';
+        }
+      } else {
+        finalDecision = 'More information needed';
       }
+
+      if (!finalDecision) {
+        finalDecision = await getFinalDecision(userMessage, matchedVisaType?.visaType || null, matchedCountry);
+      }
+    } else {
+      finalDecision = 'More information needed';
     }
 
     if (!matchedVisaType && !matchedCountry) {
@@ -85,7 +99,6 @@ router.post('/', async (req, res) => {
         message: llmResponse
       });
     }
-
 
     let messageParts = [];
 
@@ -120,7 +133,7 @@ router.post('/', async (req, res) => {
       matchedCountry,
       usedLLMFallback: false,
       llmResponse: finalMessage,
-      finalDecision: null
+      finalDecision
     });
 
     const nextQuestion = await getNextBestQuestion(
@@ -131,15 +144,14 @@ router.post('/', async (req, res) => {
 
     res.json({
       message: finalMessage,
-      nextQuestion: nextQuestion?.trim() || 'Is there anything else I can help you with?'
+      nextQuestion: nextQuestion?.trim() || 'Is there anything else I can help you with?',
+      finalDecision
     });
 
   } catch (error) {
     console.error('Error in POST /check:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-
-
 });
 
 module.exports = router;

@@ -159,7 +159,7 @@ const data = {
       "Nigeria", "North Macedonia", "Pakistan", "Palestine",
       "Russia", "Rwanda", "Senegal", "Serbia", "Sierra Leone", "Somalia",
       "South Africa", "South Sudan", "Sri Lanka", "Sudan", "Syria",
-      "Tanzania", "Timor-Leste", "Trinidad and Tobago", "Turkey",
+      "Tanzania", "Timor-Leste", "Trinidad & Tobago", "Turkey",
       "Uganda", "Venezuela (non biometric)", "Vanuatu", "Vietnam", "Yemen",
       "Zimbabwe"
     ],
