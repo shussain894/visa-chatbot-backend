@@ -6,6 +6,7 @@ const sessionSchema = new mongoose.Schema({
   matchedCountry: String,
   usedLLMFallback: { type: Boolean, default: false },
   llmResponse: String,
+  finalDecision: String,
   timestamp: { type: Date, default: Date.now },
 });
 

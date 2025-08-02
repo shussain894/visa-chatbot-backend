@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getVisaRules } = require('../models/visaService');
 const VisaRule = require('../models/VisaRules');
+const askLlama = require('../helpers/askLlama3');
 
 router.get('/', async (req, res) => {
   try {
@@ -21,5 +22,7 @@ router.get('/visa-types', async (req, res) => {
     res.status(500).json({ error: 'Could not fetch visa types' });
   }
 });
+
+
 
 module.exports = router;

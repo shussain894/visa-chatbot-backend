@@ -19,6 +19,7 @@ router.post('/', async (req, res) => {
     const visaTypeKeywords = {
       'standard_visitor_visa': ['tourist', 'tourism', 'visit'],
       'skilled_worker_visa': ['skilled', 'work', 'worker'],
+      'family_visa_partner_spouse': ['spouse', 'civil partner', 'fiance', 'unmarried partner'],
     };
 
     const visaTypes = await VisaRule.find({}).lean();
@@ -67,11 +68,22 @@ router.post('/', async (req, res) => {
     }
 
     if (!matchedVisaType && !matchedCountry) {
+      const llmResponse = await askLlama(`A user says: ${userMessage}. Do they need a visa or TB test for the UK?`);
+
+      await Session.create({
+        userMessage,
+        matchedVisaType: null,
+        matchedCountry: null,
+        usedLLMFallback: true,
+        llmResponse,
+        finalDecision: null
+      });
+
       return res.json({
-        message:
-          "Sorry, I couldn't match your query to a visa or country. A human-like AI model may be needed."
+        message: llmResponse
       });
     }
+
 
     let messageParts = [];
 

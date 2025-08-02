@@ -9,7 +9,7 @@ app.use(express.json());
 
 connectDB();
 
-app.use('/check', require('./routes/check'));
+app.use('/check', require('./routes/chat'));
 app.use('/session', require('./routes/session'));
 app.use('/chat', require('./routes/chat'));
 
