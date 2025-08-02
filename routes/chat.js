@@ -131,7 +131,7 @@ router.post('/', async (req, res) => {
       userMessage,
       matchedVisaType: matchedVisaType?.visaType || null,
       matchedCountry,
-      usedLLMFallback: false,
+      usedLLMFallback:true,
       llmResponse: finalMessage,
       finalDecision
     });
