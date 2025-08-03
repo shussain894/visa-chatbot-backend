@@ -97,7 +97,7 @@ Once Ollama is running, the backend will automatically query it when needed.
 
 ### 8. Frontend
 
-1. Now clone the frontend here (https://github.com/shussain894/visa-chatbot-frontend) and follow the instructions
+1. Now clone the frontend here [frontend] (https://github.com/shussain894/visa-chatbot-frontend) and follow the instructions
 
 Example Messages to Test
 - "I’m a tourist from France" → Visa not required, no TB test
