@@ -1,6 +1,6 @@
 # 🇬🇧 UK Visa Eligibility Chatbot (Backend)
 
-This is a simple chatbot API that helps users check if they need a UK visa or a tuberculosis (TB) test based on their visa type and country of origin. It supports rule-based logic and optionally falls back to a local LLM (LLaMA) for natural conversation flow.
+This is a simple chatbot API that helps users check if they need a UK visa or a tuberculosis (TB) test based on their visa type and country of origin. It supports rule-based logic and optionally falls back to a local LLM (llama3) for natural conversation flow.
 
 ---
 
@@ -63,7 +63,7 @@ node seed.js
 
 ### 6. Run the Server
 ```bash
-npm start
+node index.js
 ```
 Server runs at:
 ```bash
@@ -93,7 +93,20 @@ ollama run llama3
 ```bash
 ollama serve
 ```
+Once Ollama is running, the backend will automatically query it when needed.
 
+### 8. Frontend
+
+1. Now clone the frontend here (https://github.com/shussain894/visa-chatbot-frontend) and follow the instructions
+
+Example Messages to Test
+- "I’m a tourist from France" → Visa not required, no TB test
+
+- "I'm from South Africa" → Visa required, TB test required
+
+- "I want to work in the UK" → Work visa logic
+
+- "Can I visit family from Nigeria?" → Family visa, visa required, TB test required
 
 
 
